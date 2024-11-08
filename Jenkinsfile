@@ -6,16 +6,10 @@ pipeline {
     }
 
     stages {
-          stage('Checkout') {
+        stage('Checkout') {
             steps {
-                script {
-                    // Explicitly specify the branch you want to checkout
-                    checkout([
-                        $class: 'GitSCM', 
-                        branches: [[name: '*/main']], // Change to '*/master' if needed
-                        userRemoteConfigs: [[url: 'https://github.com/vinaykumar485/test.git']]
-                    ])
-                }
+                // Checkout the code from the repository (you can configure the repository later)
+                git 'https://github.com/your-username/simple-app.git'
             }
         }
 
@@ -40,27 +34,20 @@ pipeline {
         stage('Test Application') {
             steps {
                 script {
-                    // Verify the app is running
-                    sh 'curl http://localhost:3000'
+                    // Add a wait time to ensure the app has time to start
+                    sleep 5  // wait for the app to start
+
+                    // Test the application is running by sending a GET request to the app
+                    def response = sh(script: 'curl -s -o /dev/null -w "%{http_code}" http://localhost:3000', returnStdout: true).trim()
+
+                    // Check if the response is 200 (OK)
+                    if (response == '200') {
+                        echo "Application is running correctly."
+                    } else {
+                        error "Application did not respond as expected. HTTP Response Code: ${response}"
+                    }
                 }
             }
-        }
-
-        stage('Cleanup') {
-            steps {
-                script {
-                    // Clean up: Stop and remove the container
-                    sh 'docker ps -q | xargs docker stop'
-                    sh 'docker ps -a -q | xargs docker rm'
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            // Clean up Docker images and containers
-            sh 'docker system prune -f'
         }
     }
 }
