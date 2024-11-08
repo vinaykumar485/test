@@ -6,10 +6,16 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+          stage('Checkout') {
             steps {
-                // Checkout the code from the repository (you can configure the repository later)
-                git 'https://github.com/vinaykumar485/test.git'
+                script {
+                    // Explicitly specify the branch you want to checkout
+                    checkout([
+                        $class: 'GitSCM', 
+                        branches: [[name: '*/main']], // Change to '*/master' if needed
+                        userRemoteConfigs: [[url: 'https://github.com/vinaykumar485/test.git']]
+                    ])
+                }
             }
         }
 
