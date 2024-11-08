@@ -9,7 +9,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Checkout the code from the repository (you can configure the repository later)
-                git 'https://github.com/vinaykumar485/test.git'
+                checkout scm
             }
         }
 
